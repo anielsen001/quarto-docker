@@ -26,5 +26,5 @@ quarto check
 
 ## References
 
-[](https://www.r-bloggers.com/2022/07/how-to-set-up-quarto-with-docker-part-1-static-content/)
-[](https://github.com/analythium/quarto-docker-examples)
+- https://www.r-bloggers.com/2022/07/how-to-set-up-quarto-with-docker-part-1-static-content/
+- https://github.com/analythium/quarto-docker-examples
