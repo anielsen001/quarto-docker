@@ -24,6 +24,16 @@ This will drop you into a bash shell, test the quarto install
 quarto check
 ```
 
+## Tag and push to docker hub
+
+```bash
+docker tag quarto:develop anielsen/quarto-python:latest
+```
+
+```bash
+docker push anielsen/quarto-python:latest
+```
+
 ## References
 
 - https://www.r-bloggers.com/2022/07/how-to-set-up-quarto-with-docker-part-1-static-content/
