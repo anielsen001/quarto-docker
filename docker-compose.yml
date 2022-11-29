@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  develop:
+    init: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DISPLAY:
+    image: quarto:develop
+    volumes:
+      # passing through this file allows opening windows from the container in your host computer
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+      - "/data:/data"
+      - "$PWD:/opt/project"
+    command:
+      - /bin/bash
