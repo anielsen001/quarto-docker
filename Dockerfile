@@ -22,4 +22,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip
 RUN python3 -m pip install jupyter
 
+RUN python3 -m pip install tabulate
 
+RUN python3 -m pip install pandas

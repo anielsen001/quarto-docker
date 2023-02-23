@@ -4,6 +4,7 @@ The container contains
 - full tex-live distribution
 - the most recent quarto version
 - python and jupyter
+- python tabulate and pandas
 
 
 ## Build
