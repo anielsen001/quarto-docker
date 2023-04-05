@@ -44,3 +44,6 @@ RUN python3 -m pip install jupyter
 RUN python3 -m pip install tabulate
 
 RUN python3 -m pip install pandas
+
+RUN python3 -m pip install numpy-quaternion
+
