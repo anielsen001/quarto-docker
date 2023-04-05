@@ -47,3 +47,4 @@ RUN python3 -m pip install pandas
 
 RUN python3 -m pip install numpy-quaternion
 
+RUN python3 -m pip install scipy
