@@ -22,9 +22,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     qt5-default
 
 # get quarto
-# ARG QUARTO_VERSION="0.9.522"
-# RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
-RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
+ARG QUARTO_VERSION="1.3.340"
+RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
+#RUN curl -LO https://github.com/quarto-dev/quarto-cli/releases/download/v1.3.340/quarto-1.3.340-linux-amd64.deb
+#RUN curl -LO https://quarto.org/download/latest/quarto-linux-amd64.deb
 RUN dpkg -i quarto-linux-amd64.deb
 
 # Install Julia
