@@ -40,7 +40,7 @@ RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 # install jupyter
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip
-RUN python3 -m pip install jupyter
+RUN python3 -m pip install jupyter jupyter-cache
 
 RUN python3 -m pip install tabulate
 
