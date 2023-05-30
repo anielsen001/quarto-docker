@@ -5,6 +5,7 @@ The container contains
 - the most recent quarto version
 - python and jupyter
 - python tabulate and pandas
+- julia
 
 
 ## Build
@@ -28,11 +29,11 @@ quarto check
 ## Tag and push to docker hub
 
 ```bash
-docker tag quarto:develop anielsen/quarto-python:latest
+docker tag quarto:develop anielsen/quarto-texlive-python-julia:latest
 ```
 
 ```bash
-docker push anielsen/quarto-python:latest
+docker push anielsen/quarto-texlive-python-julia:latest
 ```
 
 ## References
