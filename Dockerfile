@@ -1,25 +1,30 @@
-FROM ubuntu:20.04
+FROM registry.gitlab.com/islandoftex/images/texlive:latest
+
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
 ENV JULIA_VERSION=1.7.3
 
 RUN apt-get update
 
-RUN apt-get install -y --no-install-recommends \
-    pandoc \
-    pandoc-citeproc \
-    curl
+RUN apt-get install -y --no-install-recommends ca-certificates
+RUN update-ca-certificates 
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    texlive-full
+RUN apt-get install -y --no-install-recommends curl
+
+# Get a more recent version of pandoc
+RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/3.1.2/pandoc-3.1.2-1-amd64.deb
+RUN dpkg -i pandoc-amd64.deb
+
+#RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ="America/New_York" apt-get install -y --no-install-recommends \
+#    texlive-full
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     inkscape make wget zip git software-properties-common unzip
 
-RUN apt-add-repository universe
-RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    qt5-default
+#RUN apt-add-repository universe
+#RUN apt-get update
+#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#    qt5-default
 
 # get quarto
 ARG QUARTO_VERSION="1.3.340"
@@ -40,14 +45,15 @@ RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 # install jupyter
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip
-RUN python3 -m pip install jupyter jupyter-cache
 
-RUN python3 -m pip install tabulate
+RUN python3 -m pip install --break-system-packages jupyter jupyter-cache
 
-RUN python3 -m pip install pandas
+RUN python3 -m pip install --break-system-packages tabulate
 
-RUN python3 -m pip install numpy-quaternion
+RUN python3 -m pip install --break-system-packages pandas
 
-RUN python3 -m pip install scipy
+RUN python3 -m pip install --break-system-packages numpy-quaternion
 
-RUN python3 -m pip install matplotlib
+RUN python3 -m pip install --break-system-packages scipy
+
+RUN python3 -m pip install --break-system-packages matplotlib
