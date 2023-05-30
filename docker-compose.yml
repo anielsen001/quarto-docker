@@ -14,5 +14,6 @@ services:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
       - "/data:/data"
       - "$PWD:/opt/project"
+    network_mode: "host"
     command:
       - /bin/bash
