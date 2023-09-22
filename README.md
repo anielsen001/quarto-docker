@@ -11,13 +11,18 @@ The container contains
 ## Build
 
 ```bash
-docker-compose -f docker-compose.yml build develop
+docker-compose -f docker-compose.yml build quarto
+```
+
+To force a build from scratch 
+```bash
+docker-compose -f docker-compose.yml build --no-cache quarto
 ```
 
 ## Run
 
 ```bash
-docker-compose -f docker-compose.yml run develop
+docker-compose -f docker-compose.yml run quarto
 ```
 
 This will drop you into a bash shell, test the quarto install
