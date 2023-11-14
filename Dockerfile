@@ -61,3 +61,7 @@ RUN python3 -m pip install --break-system-packages numpy-quaternion
 RUN python3 -m pip install --break-system-packages scipy
 
 RUN python3 -m pip install --break-system-packages matplotlib
+
+# update tlmgr and packages
+RUN tlmgr update --self
+RUN tlmgr update --all
