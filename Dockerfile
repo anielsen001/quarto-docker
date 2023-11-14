@@ -3,7 +3,7 @@ FROM registry.gitlab.com/islandoftex/images/texlive:latest
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
 ENV JULIA_VERSION=1.7.3
-ENV PANDOC_VERSION=3.1.8
+ENV PANDOC_VERSION=3.1.9
 ARG QUARTO_VERSION="1.3.450"
 
 RUN apt-get update
