@@ -1,0 +1,9 @@
+jupyter 
+jupyter-cache
+tabulate
+pandas
+numpy-quaternion
+scipy
+matplotlib
+folium
+plotly

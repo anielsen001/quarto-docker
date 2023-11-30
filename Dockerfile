@@ -50,17 +50,24 @@ RUN apt-get update && \
     python3-dev \
     python3-tk
 
-RUN python3 -m pip install --break-system-packages jupyter jupyter-cache
+# RUN python3 -m pip install --break-system-packages jupyter jupyter-cache
 
-RUN python3 -m pip install --break-system-packages tabulate
+# RUN python3 -m pip install --break-system-packages tabulate
 
-RUN python3 -m pip install --break-system-packages pandas
+# RUN python3 -m pip install --break-system-packages pandas
 
-RUN python3 -m pip install --break-system-packages numpy-quaternion
+# RUN python3 -m pip install --break-system-packages numpy-quaternion
 
-RUN python3 -m pip install --break-system-packages scipy
+# RUN python3 -m pip install --break-system-packages scipy
 
-RUN python3 -m pip install --break-system-packages matplotlib
+# RUN python3 -m pip install --break-system-packages matplotlib
+
+WORKDIR /opt
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install --break-system-packages -r /opt/requirements.txt
+
+# this will build the matplotlib font cache
+RUN python3 -c "from matplotlib import pylab as plt"
 
 # update tlmgr and packages
 RUN tlmgr update --self
