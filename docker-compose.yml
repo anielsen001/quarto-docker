@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile-12
     environment:
       DISPLAY:
-    image: quarto-12:develop
+    image: quarto-12:testpandoc
     volumes:
       # passing through this file allows opening windows from the container in your host computer
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
