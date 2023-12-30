@@ -1,14 +1,14 @@
 version: "3.9"
 
 services:
-  quarto:
+  quarto-13:
     init: true
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-13
     environment:
       DISPLAY:
-    image: quarto:develop
+    image: quarto-13:develop
     volumes:
       # passing through this file allows opening windows from the container in your host computer
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
@@ -17,14 +17,14 @@ services:
     network_mode: "host"
     command:
       - /bin/bash
-  quarto-pre:
+  quarto-14:
     init: true
     build:
       context: .
-      dockerfile: Dockerfile-pre
+      dockerfile: Dockerfile-14
     environment:
       DISPLAY:
-    image: quarto-pre:develop
+    image: quarto-14:develop
     volumes:
       # passing through this file allows opening windows from the container in your host computer
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
@@ -37,7 +37,7 @@ services:
     init: true
     build:
       context: .
-      dockerfile: Dockerfile-1.2
+      dockerfile: Dockerfile-12
     environment:
       DISPLAY:
     image: quarto-12:develop
