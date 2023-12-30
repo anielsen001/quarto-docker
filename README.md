@@ -7,22 +7,25 @@ The container contains
 - python tabulate and pandas
 - julia
 
+There are three versions available for quarto 1.2.x, 1.3.x and 1.4.x (pre-release). 
 
 ## Build
 
+Replace `XX` with `12`, `13` or `14` for the quarto version desired.
+
 ```bash
-docker-compose -f docker-compose.yml build quarto
+docker-compose -f docker-compose.yml build quarto-XX
 ```
 
 To force a build from scratch 
 ```bash
-docker-compose -f docker-compose.yml build --no-cache quarto
+docker-compose -f docker-compose.yml build --no-cache quarto-XX
 ```
 
 ## Run
 
 ```bash
-docker-compose -f docker-compose.yml run quarto
+docker-compose -f docker-compose.yml run quarto-XX
 ```
 
 This will drop you into a bash shell, test the quarto install
@@ -34,11 +37,11 @@ quarto check
 ## Tag and push to docker hub
 
 ```bash
-docker tag quarto:develop anielsen/quarto-texlive-python-julia:latest
+docker tag quarto-XX:develop anielsen/quarto-XX-texlive-python-julia:latest
 ```
 
 ```bash
-docker push anielsen/quarto-texlive-python-julia:latest
+docker push anielsen/quarto-XX-texlive-python-julia:latest
 ```
 
 ## References
