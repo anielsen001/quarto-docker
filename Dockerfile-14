@@ -13,6 +13,15 @@ RUN update-ca-certificates
 
 RUN apt-get install -y --no-install-recommends curl
 
+# add ms true type fonts
+RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
+RUN apt update
+RUN apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
+
+# install R and configure
+RUN apt install -y --no-install-recommends r-base r-base-dev
+RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
+
 # Get a more recent version of pandoc
 RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
 RUN dpkg -i pandoc-amd64.deb
@@ -38,7 +47,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev \
-    python3-tk
+    python3-tk \
+    python3-venv
 
 WORKDIR /opt
 COPY requirements.txt requirements.txt
