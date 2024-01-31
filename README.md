@@ -2,12 +2,13 @@
 
 The container contains
 - full tex-live distribution
+- libreoffice
 - the most recent quarto version
 - python and jupyter
 - python tabulate and pandas
 - julia
 
-There are three versions available for quarto 1.2.x, 1.3.x and 1.4.x (pre-release). 
+There are three versions available for quarto 1.2.x, 1.3.x and 1.4.x. The 1.4.x series is the current release.
 
 ## Build
 
