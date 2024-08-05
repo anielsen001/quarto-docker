@@ -67,5 +67,5 @@ RUN python3 -m pip install --break-system-packages -r /opt/requirements.txt
 RUN python3 -c "from matplotlib import pylab as plt"
 
 # update tlmgr and packages
-RUN tlmgr update --self
-RUN tlmgr update --all
+RUN tlmgr update --self --no-persistent-downloads
+RUN tlmgr update --all --no-persistent-downloads
