@@ -8,11 +8,12 @@ The container contains
 - python tabulate and pandas
 - julia
 
-There are three versions available for quarto 1.2.x, 1.3.x and 1.4.x. The 1.4.x series is the current release.
+There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.5.x series is the current release.
+The 1.6.x series is the pre-release.
 
 ## Build
 
-Replace `XX` with `12`, `13` or `14` for the quarto version desired.
+Replace `XX` with `12`, `13`, `14`, `15` or `16` for the quarto version desired.
 
 ```bash
 docker-compose -f docker-compose.yml build quarto-XX
