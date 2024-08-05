@@ -4,7 +4,7 @@ LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
 ENV JULIA_VERSION=1.7.3
 ENV PANDOC_VERSION=3.1.13
-ARG QUARTO_VERSION="1.4.553"
+ARG QUARTO_VERSION="1.4.557"
 
 RUN apt-get update
 
