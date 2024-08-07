@@ -2,8 +2,11 @@ FROM registry.gitlab.com/islandoftex/images/texlive:latest
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
+SHELL ["/bin/bash", "-c"]
+
 ENV JULIA_VERSION=1.10.4
 ENV PANDOC_VERSION=3.3
+ENV PYTHON_VERSION="3.11.9"
 ARG QUARTO_VERSION="1.5.56"
 
 RUN apt-get update
@@ -11,6 +14,38 @@ RUN apt-get update
 RUN apt-get install -y --no-install-recommends ca-certificates
 RUN update-ca-certificates 
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    inkscape make wget zip git software-properties-common unzip
+
+## install python
+RUN apt-get install -y build-essential gdb lcov pkg-config \
+    libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
+    libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
+    lzma lzma-dev tk-dev uuid-dev zlib1g-dev 
+RUN mkdir -p /opt/python && \
+    cd /opt/python && \
+    wget -q https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz && \
+    tar xzf Python-${PYTHON_VERSION}.tgz && \
+    rm Python-${PYTHON_VERSION}.tgz && \
+    cd Python-${PYTHON_VERSION} && \
+    ./configure --prefix=/opt/python --enable-shared    && \
+    make -j 4 && \
+    make install
+ENV PATH=/opt/python/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/python/lib
+
+WORKDIR /opt
+COPY requirements.txt requirements.txt
+RUN cd /opt/python && \
+    python3 -m venv venv && \
+    source venv/bin/activate && \
+    python3 -m pip install -r /opt/requirements.txt && \
+    python3 -c "from matplotlib import pylab as plt"
+ENV PATH=/opt/python/venv/bin:$PATH
+
+    # this will build the matplotlib font cache
+    # RUN python3 -c "from matplotlib import pylab as plt"
+    
 ## curl
 RUN apt-get install -y --no-install-recommends curl
 
@@ -33,9 +68,6 @@ RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
 RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
 RUN dpkg -i pandoc-amd64.deb
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    inkscape make wget zip git software-properties-common unzip
-
 # get quarto
 RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
 RUN dpkg -i quarto-linux-amd64.deb
@@ -51,20 +83,15 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
 
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 
+
+
 # install jupyter
-RUN apt-get update && \ 
-    apt-get install -y --no-install-recommends \
-    python3-pip \
-    python3-dev \
-    python3-tk \
-    python3-venv
-
-WORKDIR /opt
-COPY requirements.txt requirements.txt
-RUN python3 -m pip install --break-system-packages -r /opt/requirements.txt
-
-# this will build the matplotlib font cache
-RUN python3 -c "from matplotlib import pylab as plt"
+# RUN apt-get update && \ 
+#     apt-get install -y --no-install-recommends \
+#     python3-pip \
+#     python3-dev \
+#     python3-tk \
+#     python3-venv
 
 # update tlmgr and packages
 RUN tlmgr update --self --no-persistent-downloads
