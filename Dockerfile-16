@@ -1,29 +1,37 @@
+# -*- mode: Dockerfile -*-
 FROM registry.gitlab.com/islandoftex/images/texlive:latest
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
-ENV JULIA_VERSION=1.10.4
-ENV PANDOC_VERSION=3.3
-ARG QUARTO_VERSION="1.6.4"
+ENV JULIA_VERSION=1.11.2
+ENV PANDOC_VERSION=3.6.1
+ARG QUARTO_VERSION="1.6.40"
 
-RUN apt-get update
-
-RUN apt-get install -y --no-install-recommends ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 RUN update-ca-certificates 
 
-## curl
-RUN apt-get install -y --no-install-recommends curl
-
-# libreoffice
-RUN apt-get install -y --no-install-recommends libreoffice
-
-# imagemagick
-RUN apt install -y --no-install-recommends imagemagick
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    libreoffice \
+    imagemagick \
+    inkscape \
+    make \
+    wget \
+    zip \
+    unzip \
+    git \
+    #software-properties-common \
+    libgbm-dev \
+    python3-pip \
+    python3-dev \
+    python3-tk \
+    python3-venv
 
 # add ms true type fonts
 RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
-RUN apt update
-RUN apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
+RUN apt update && apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
 
 # install R and configure
 RUN apt install -y --no-install-recommends r-base r-base-dev
@@ -33,13 +41,9 @@ RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
 RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
 RUN dpkg -i pandoc-amd64.deb
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    inkscape make wget zip git software-properties-common unzip
-
 # get quarto
 RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
 RUN dpkg -i quarto-linux-amd64.deb
-RUN apt install -y --no-install-recommends libgbm-dev
 RUN quarto install chromium
 
 # Install Julia
@@ -51,21 +55,19 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
 
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 
-# install jupyter
-RUN apt-get update && \ 
-    apt-get install -y --no-install-recommends \
-    python3-pip \
-    python3-dev \
-    python3-tk \
-    python3-venv
-
-WORKDIR /opt
-COPY requirements.txt requirements.txt
-RUN python3 -m pip install --break-system-packages -r /opt/requirements.txt
-
-# this will build the matplotlib font cache
-RUN python3 -c "from matplotlib import pylab as plt"
-
 # update tlmgr and packages
 RUN tlmgr update --self --no-persistent-downloads
 RUN tlmgr update --all --no-persistent-downloads
+
+# set up python virtual environment
+RUN python3 -m venv /opt/venv
+
+WORKDIR /opt
+COPY requirements.txt requirements.txt
+RUN /opt/venv/bin/python -m pip install --upgrade pip
+RUN /opt/venv/bin/python -m pip install -r /opt/requirements.txt
+
+# this will build the matplotlib font cache
+RUN  /opt/venv/bin/python -c "from matplotlib import pylab as plt"
+
+
