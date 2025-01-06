@@ -1,22 +1,33 @@
 version: "3.9"
 
+x-default: &default
+  init: true
+  environment:
+    DISPLAY:
+  volumes:
+    # passing through this file allows opening windows from the container in your host computer
+    - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
+    - "/data:/data"
+    - "$PWD:/opt/project"
+  network_mode: "host"
+  command:
+    - /bin/bash  
+
 services:
+  quarto-17:
+    <<: *default
+    image: quarto-17:develop
+    build:
+      context: .
+      dockerfile: Dockerfile-17
+  
   quarto-16:
-    init: true
+    <<: *default
     build:
       context: .
       dockerfile: Dockerfile-16
-    environment:
-      DISPLAY:
     image: quarto-16:develop
-    volumes:
-      # passing through this file allows opening windows from the container in your host computer
-      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-      - "/data:/data"
-      - "$PWD:/opt/project"
-    network_mode: "host"
-    command:
-      - /bin/bash
+ 
   quarto-15:
     init: true
     build:
