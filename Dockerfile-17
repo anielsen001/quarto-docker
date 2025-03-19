@@ -70,4 +70,9 @@ RUN /opt/venv/bin/python -m pip install -r /opt/requirements.txt
 # this will build the matplotlib font cache
 RUN  /opt/venv/bin/python -c "from matplotlib import pylab as plt"
 
-
+# install bibtool
+RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
+    tar xf BibTool-2.68.tar.gz && \
+    cd BibTool && \
+    ./configure && \
+    make && make install
