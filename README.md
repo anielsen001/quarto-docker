@@ -7,6 +7,7 @@ The container contains
 - python and jupyter
 - python tabulate and pandas
 - julia
+- bibtool
 
 There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.6.x series is the current release.
 The 1.7.x series is the pre-release.
@@ -44,9 +45,19 @@ quarto check
 docker tag quarto-XX:develop anielsen/quarto-XX-texlive-python-julia:latest
 ```
 
+
 ```bash
 docker push anielsen/quarto-XX-texlive-python-julia:latest
 ```
+
+for github container registry:
+
+``` bash
+docker tag quarto-XX:develop ghcr.io/anielsen001/quarto-docker/quarto-XX-texlive-python-julia:latest
+```
+
+for ghcr.io you need to create api keys here as described here 
+https://docs.github.com/en/packages/learn-github-packages/connecting-a-repository-to-a-package
 
 ## References
 
