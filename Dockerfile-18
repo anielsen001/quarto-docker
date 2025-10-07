@@ -1,0 +1,95 @@
+# -*- mode: Dockerfile -*-
+FROM registry.gitlab.com/islandoftex/images/texlive:latest
+
+LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
+
+ENV JULIA_VERSION=1.11.7
+ENV PANDOC_VERSION=3.6.2
+ARG QUARTO_VERSION="1.8.25"
+
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+RUN update-ca-certificates 
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    libreoffice \
+    imagemagick \
+    inkscape \
+    make \
+    wget \
+    zip \
+    unzip \
+    git \
+    #software-properties-common \
+    libgbm-dev \
+    python3-pip \
+    python3-dev \
+    python3-tk \
+    python3-venv
+
+# add ms true type fonts
+RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
+RUN apt update && apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
+
+# install R and configure
+RUN apt install -y --no-install-recommends r-base r-base-dev
+RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
+
+# Get a more recent version of pandoc
+RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
+RUN dpkg -i pandoc-amd64.deb
+
+# get quarto
+RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
+RUN dpkg -i quarto-linux-amd64.deb
+RUN quarto install chromium
+
+# Install Julia
+ENV JULIA_DEPOT_PATH=/opt/julia
+RUN mkdir /opt/julia-${JULIA_VERSION} && \
+    cd /tmp && \
+    wget -q https://julialang-s3.julialang.org/bin/linux/x64/`echo ${JULIA_VERSION} | cut -d. -f 1,2`/julia-${JULIA_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf julia-${JULIA_VERSION}-linux-x86_64.tar.gz -C /opt/julia-${JULIA_VERSION} --strip-components=1 && \
+    rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz
+
+RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
+
+# update tlmgr and packages
+RUN tlmgr update --self --no-persistent-downloads
+RUN tlmgr update --all --no-persistent-downloads
+
+# install uv and setup python
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin/:$PATH"
+RUN mkdir /opt/pyenv
+WORKDIR /opt/pyenv
+RUN uv init --bare
+#RUN uv venv /opt/pyenv
+#ENV UV_PROJECT_ENVIRONMENT=/opt/pyenv
+
+# set up python virtual environment
+# RUN python3 -m venv /opt/venv
+
+WORKDIR /opt/pyenv
+COPY requirements.txt /opt/pyenv/requirements.txt
+#RUN /opt/venv/bin/python -m pip install --upgrade pip
+#RUN uv run python -m pip install --upgrade pip
+#RUN /opt/venv/bin/python -m pip install -r /opt/pyenv/requirements.txt
+RUN uv add -r /opt/pyenv/requirements.txt
+
+# this will build the matplotlib font cache
+RUN  uv run python -c "from matplotlib import pylab as plt"
+
+# install bibtool
+#RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
+#    tar xf BibTool-2.68.tar.gz && \
+#    cd BibTool && \
+#    ./configure && \
+#    make && make install
+RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
+    tar xf BibTool-2.68.tar.gz && \
+    cd BibTool && \
+    ./configure
+
