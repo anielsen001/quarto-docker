@@ -17,6 +17,7 @@ RUN apt-get update && \
     libreoffice \
     imagemagick \
     inkscape \
+    less \
     make \
     wget \
     zip \
