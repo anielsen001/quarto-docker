@@ -1,11 +1,15 @@
 # -*- mode: Dockerfile -*-
-FROM registry.gitlab.com/islandoftex/images/texlive:latest
+#FROM registry.gitlab.com/islandoftex/images/texlive:latest
+FROM docker.io/ubuntu:24.04
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
 ENV JULIA_VERSION=1.12.1
 ENV PANDOC_VERSION=3.8.2.1
-ARG QUARTO_VERSION="1.8.26"
+ENV QUARTO_VERSION="1.8.26"
+
+ENV TEXLIVE_VERSION_YEAR=2025
+ENV TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
 
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 RUN update-ca-certificates 
@@ -30,9 +34,25 @@ RUN apt-get update && \
     python3-tk \
     python3-venv
 
+# download texlive installer
+RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
+WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
+RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
+RUN tar xf install-tl-unx.tar.gz
+RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
+    --scheme full \
+    --no-interaction \
+    --paper=letter \
+    --no-gui \
+    --no-continue
+    
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # add ms true type fonts
-RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
+# RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
 RUN apt update && apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
+RUN fc-cache -vr
 
 # install R and configure
 RUN apt install -y --no-install-recommends r-base r-base-dev
@@ -56,6 +76,9 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
     rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz
 
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
+
+## set texlive path
+ENV PATH=/usr/local/texlive/2025/bin/x86_64-linux/:$PATH
 
 # update tlmgr and packages
 RUN tlmgr update --self --no-persistent-downloads
@@ -84,13 +107,13 @@ RUN uv add -r /opt/pyenv/requirements.txt
 RUN  uv run python -c "from matplotlib import pylab as plt"
 
 # install bibtool
-#RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
-#    tar xf BibTool-2.68.tar.gz && \
-#    cd BibTool && \
-#    ./configure && \
-#    make && make install
 RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
-    tar xf BibTool-2.68.tar.gz && \
-    cd BibTool && \
-    ./configure
+   tar xf BibTool-2.68.tar.gz && \
+   cd BibTool && \
+   ./configure && \
+   make && make install
+# RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
+#     tar xf BibTool-2.68.tar.gz && \
+#     cd BibTool && \
+#     ./configure
 
