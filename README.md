@@ -1,4 +1,6 @@
-# Docker setup for Quarto
+# Container setup for Quarto
+
+Works with both `docker` and `podman`. 
 
 The container contains
 - full tex-live distribution
@@ -20,16 +22,28 @@ Replace `XX` with `12`, `13`, `14`, `15`, `16`, `17`, `18` for the quarto versio
 ```bash
 docker-compose -f docker-compose.yml build quarto-XX
 ```
+or
+```bash
+podman-compose -f docker-compose.yml build quarto-XX
+```
 
 To force a build from scratch 
 ```bash
 docker-compose -f docker-compose.yml build --no-cache quarto-XX
+```
+or
+```bash
+pdoman-compose -f docker-compose.yml build --no-cache quarto-XX
 ```
 
 ## Run
 
 ```bash
 docker-compose -f docker-compose.yml run quarto-XX
+```
+or
+```bash
+podman-compose -f docker-compose.yml run quarto-XX
 ```
 
 This will drop you into a bash shell, test the quarto install
@@ -38,22 +52,24 @@ This will drop you into a bash shell, test the quarto install
 quarto check
 ```
 
-## Tag and push to docker hub
+## Tag and push to github container registry (ghcr)
 
 ```bash
-docker tag quarto-XX:develop anielsen/quarto-XX-texlive-python-julia:latest
-```
-
-
-```bash
-docker push anielsen/quarto-XX-texlive-python-julia:latest
-```
-
-for github container registry:
-
-``` bash
 docker tag quarto-XX:develop ghcr.io/anielsen001/quarto-docker/quarto-XX-texlive-python-julia:latest
 ```
+or
+```bash
+podman tag quarto-XX:develop ghcr.io/anielsen001/quarto-docker/quarto-XX-texlive-python-julia:latest
+```
+
+```bash
+docker push ghcr.io/anielsen001/quarto-docker/quarto-XX-texlive-python-julia:latest
+```
+or 
+```bash
+podman push ghcr.io/anielsen001/quarto-docker/quarto-XX-texlive-python-julia:latest
+```
+
 
 for ghcr.io you need to create api keys here as described here 
 https://docs.github.com/en/packages/learn-github-packages/connecting-a-repository-to-a-package
