@@ -46,7 +46,7 @@ RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
     --no-gui \
     --no-continue
     
-
+# install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # add ms true type fonts
@@ -112,8 +112,6 @@ RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz
    cd BibTool && \
    ./configure && \
    make && make install
-# RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
-#     tar xf BibTool-2.68.tar.gz && \
-#     cd BibTool && \
-#     ./configure
 
+# clean up the downloaded apt lists
+RUN rm -rf /var/lib/apt/lists/*
