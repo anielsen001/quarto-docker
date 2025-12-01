@@ -19,7 +19,7 @@ services:
     image: quarto-18:develop
     build:
       context: .
-      dockerfile: Dockerfile-18
+      dockerfile: Dockerfile-18-multi
 
   quarto-17:
     <<: *default
