@@ -58,6 +58,14 @@ RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
     --no-gui \
     --no-continue
 
+## set texlive path
+#ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
+
+# these doen't seem to be necessary for a clean install
+# update tlmgr and packages
+#RUN tlmgr update --self --no-persistent-downloads
+#RUN tlmgr update --all --no-persistent-downloads
+
 # final stage - assemble
 FROM docker.io/ubuntu:24.04
 ARG JULIA_VERSION
@@ -128,12 +136,7 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
 
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
 
-## set texlive path
-ENV PATH=/usr/local/texlive/2025/bin/x86_64-linux/:$PATH
 
-# update tlmgr and packages
-RUN tlmgr update --self --no-persistent-downloads
-RUN tlmgr update --all --no-persistent-downloads
 
 # install uv and setup python
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -154,12 +157,8 @@ RUN uv add -r /opt/pyenv/requirements.txt
 # this will build the matplotlib font cache
 RUN  uv run python -c "from matplotlib import pylab as plt"
 
-# install bibtool
-RUN wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
-   tar xf BibTool-2.68.tar.gz && \
-   cd BibTool && \
-   ./configure && \
-   make && make install
-
 # clean up the downloaded apt lists
 RUN rm -rf /var/lib/apt/lists/*
+
+## set texlive path
+ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
