@@ -8,7 +8,7 @@ ARG TEXLIVE_VERSION_YEAR=2025
 ARG TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
 
 # stage 1 - build
-FROM docker.io/ubuntu:24.04 as builder
+FROM docker.io/ubuntu:24.04 as bibtool
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -19,8 +19,7 @@ RUN apt-get update && \
     wget
 RUN update-ca-certificates 
 
-
-# install bibtool
+# create bibtool
 RUN mkdir -p /opt/bibtool
 RUN cd /opt/bibtool && \
     wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
@@ -30,17 +29,45 @@ RUN cd /opt/bibtool && \
     make && make install && make clean && \
     cd .. && rm -rf BibTool*
 
-# Stage 2 - 
+# Stage 2 - texlive
+FROM docker.io/ubuntu:24.04 as texlive
+
+ARG TEXLIVE_VERSION_YEAR
+ARG TEXLIVE_VERSION_FULL
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    perl \
+    wget
+
+# download texlive installer
+RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
+RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_YEAR}
+WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
+RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
+# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
+RUN tar xf install-tl-unx.tar.gz
+RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
+    --texdir=/opt/texlive/${TEXLIVE_VERSION_YEAR} \
+    --no-doc-install \
+    --no-src-install \
+    --scheme full \
+    --no-interaction \
+    --paper=letter \
+    --no-gui \
+    --no-continue
+
+# final stage - assemble
 FROM docker.io/ubuntu:24.04
 ARG JULIA_VERSION
 ARG PANDOC_VERSION
 ARG QUARTO_VERSION
-ARG TEXLIVE_VERSION_YEAR
-ARG TEXLIVE_VERSION_FULL
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
-COPY --from=builder /opt/bibtool /opt/bibtool
+COPY --from=bibtool /opt/bibtool /opt/bibtool
+COPY --from=texlive /opt/texlive /opt/texlive
 
 # RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 # RUN update-ca-certificates 
@@ -68,18 +95,7 @@ RUN apt-get update && \
     # python3-venv
 RUN update-ca-certificates 
 
-# download texlive installer
-RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
-WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
-RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
-# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
-RUN tar xf install-tl-unx.tar.gz
-RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
-    --scheme full \
-    --no-interaction \
-    --paper=letter \
-    --no-gui \
-    --no-continue
+
     
 # install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
