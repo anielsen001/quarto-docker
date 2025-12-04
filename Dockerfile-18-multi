@@ -29,34 +29,34 @@ RUN cd /opt/bibtool && \
     make && make install && make clean && \
     cd .. && rm -rf BibTool*
 
-# Stage 2 - texlive
-FROM docker.io/ubuntu:24.04 as texlive
+# # Stage 2 - texlive
+# FROM docker.io/ubuntu:24.04 as texlive
 
-ARG TEXLIVE_VERSION_YEAR
-ARG TEXLIVE_VERSION_FULL
+# ARG TEXLIVE_VERSION_YEAR
+# ARG TEXLIVE_VERSION_FULL
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-    perl \
-    wget
+# RUN apt-get update && \
+#     apt-get upgrade -y && \
+#     apt-get install -y --no-install-recommends \
+#     perl \
+#     wget
 
-# download texlive installer
-RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
-RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_YEAR}
-WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
-RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
-# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
-RUN tar xf install-tl-unx.tar.gz
-RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
-    --texdir=/opt/texlive/${TEXLIVE_VERSION_YEAR} \
-    --no-doc-install \
-    --no-src-install \
-    --scheme full \
-    --no-interaction \
-    --paper=letter \
-    --no-gui \
-    --no-continue
+# # download texlive installer
+# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
+# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_YEAR}
+# WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
+# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
+# # RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
+# RUN tar xf install-tl-unx.tar.gz
+# RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
+#     --texdir=/opt/texlive/${TEXLIVE_VERSION_YEAR} \
+#     --no-doc-install \
+#     --no-src-install \
+#     --scheme full \
+#     --no-interaction \
+#     --paper=letter \
+#     --no-gui \
+#     --no-continue
 
 ## set texlive path
 #ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
@@ -71,11 +71,12 @@ FROM docker.io/ubuntu:24.04
 ARG JULIA_VERSION
 ARG PANDOC_VERSION
 ARG QUARTO_VERSION
+# ARG TEXLIVE_VERSION_YEAR
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
 COPY --from=bibtool /opt/bibtool /opt/bibtool
-COPY --from=texlive /opt/texlive /opt/texlive
+# COPY --from=texlive /opt/texlive /opt/texlive/${TEXLIVE_VERSION_YEAR}
 
 # RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 # RUN update-ca-certificates 
@@ -103,11 +104,6 @@ RUN apt-get update && \
     # python3-venv
 RUN update-ca-certificates 
 
-
-    
-# install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # add ms true type fonts
 # RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
 RUN apt update && apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
@@ -120,11 +116,14 @@ RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
 # Get a more recent version of pandoc
 RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
 RUN dpkg -i pandoc-amd64.deb
+RUN rm pandoc-amd64.deb
 
 # get quarto
 RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
 RUN dpkg -i quarto-linux-amd64.deb
-RUN quarto install chromium
+RUN rm quarto-linux-amd64.deb
+RUN quarto install chromium && \
+    quarto install tinytex
 
 # Install Julia
 ENV JULIA_DEPOT_PATH=/opt/julia
@@ -135,7 +134,6 @@ RUN mkdir /opt/julia-${JULIA_VERSION} && \
     rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz
 
 RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
-
 
 
 # install uv and setup python
