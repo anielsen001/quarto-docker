@@ -92,6 +92,7 @@ RUN apt-get update && \
     less \
     make \
     perl \
+    webp \
     wget \
     zip \
     unzip
