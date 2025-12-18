@@ -8,3 +8,4 @@ matplotlib
 folium
 plotly
 branca
+pyqt5
