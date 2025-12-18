@@ -95,7 +95,20 @@ RUN apt-get update && \
     webp \
     wget \
     zip \
-    unzip
+    unzip \
+    libgl1 \
+    libglib2.0-0 \
+    libxext6 \
+    libx11-6 \
+    libxcb-cursor0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0
     # git \
     #software-properties-common \
     # libgbm-dev \
