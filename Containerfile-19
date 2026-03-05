@@ -1,0 +1,176 @@
+# -*- mode: Dockerfile -*-
+# set global arguments
+ARG JULIA_VERSION=1.12.5
+ARG PANDOC_VERSION=3.9.1
+ARG QUARTO_VERSION="1.9.29"
+
+ARG TEXLIVE_VERSION_YEAR=2026
+ARG TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
+
+# stage 1 - build
+FROM docker.io/ubuntu:24.04 as bibtool
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    ca-certificates \
+    make \
+    wget
+RUN update-ca-certificates 
+
+# create bibtool
+RUN mkdir -p /opt/bibtool
+RUN cd /opt/bibtool && \
+    wget https://www.gerd-neugebauer.de/software/TeX/BibTool/BibTool-2.68.tar.gz && \
+    tar xf BibTool-2.68.tar.gz && \
+    cd BibTool && \
+    ./configure --prefix=/opt/bibtool && \
+    make && make install && make clean && \
+    cd .. && rm -rf BibTool*
+
+# # Stage 2 - texlive
+# FROM docker.io/ubuntu:24.04 as texlive
+
+# ARG TEXLIVE_VERSION_YEAR
+# ARG TEXLIVE_VERSION_FULL
+
+# RUN apt-get update && \
+#     apt-get upgrade -y && \
+#     apt-get install -y --no-install-recommends \
+#     perl \
+#     wget
+
+# # download texlive installer
+# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
+# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_YEAR}
+# WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
+# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
+# # RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
+# RUN tar xf install-tl-unx.tar.gz
+# RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
+#     --texdir=/opt/texlive/${TEXLIVE_VERSION_YEAR} \
+#     --no-doc-install \
+#     --no-src-install \
+#     --scheme full \
+#     --no-interaction \
+#     --paper=letter \
+#     --no-gui \
+#     --no-continue
+
+## set texlive path
+#ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
+
+# these doen't seem to be necessary for a clean install
+# update tlmgr and packages
+#RUN tlmgr update --self --no-persistent-downloads
+#RUN tlmgr update --all --no-persistent-downloads
+
+# final stage - assemble
+FROM docker.io/ubuntu:24.04
+ARG JULIA_VERSION
+ARG PANDOC_VERSION
+ARG QUARTO_VERSION
+# ARG TEXLIVE_VERSION_YEAR
+
+LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
+
+COPY --from=bibtool /opt/bibtool /opt/bibtool
+# COPY --from=texlive /opt/texlive /opt/texlive/${TEXLIVE_VERSION_YEAR}
+
+# RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+# RUN update-ca-certificates 
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    libreoffice \
+    imagemagick \
+    inkscape \
+    less \
+    make \
+    perl \
+    webp \
+    wget \
+    zip \
+    unzip \
+    libgl1 \
+    libglib2.0-0 \
+    libxext6 \
+    libx11-6 \
+    libxcb-cursor0 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-render-util0 \
+    libxcb-shape0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0
+    # git \
+    #software-properties-common \
+    # libgbm-dev \
+    # python3-pip \
+    # python3-dev \
+    # python3-tk \
+    # python3-venv
+RUN update-ca-certificates 
+
+# add ms true type fonts
+# RUN sed -i "s/Components.*/Components: main contrib non-free non-free-firmware/g" /etc/apt/sources.list.d/debian.sources 
+RUN apt update && apt install -y --no-install-recommends fontconfig ttf-mscorefonts-installer
+RUN fc-cache -vr
+
+# install R and configure
+RUN apt install -y --no-install-recommends r-base r-base-dev
+RUN R -e 'install.packages(c("knitr", "rmarkdown", "renv", "reticulate"))'
+
+# Get a more recent version of pandoc
+RUN curl -o pandoc-amd64.deb -L https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb
+RUN dpkg -i pandoc-amd64.deb
+RUN rm pandoc-amd64.deb
+
+# get quarto
+RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
+RUN dpkg -i quarto-linux-amd64.deb
+RUN rm quarto-linux-amd64.deb
+RUN quarto install chromium && \
+    quarto install tinytex
+
+# Install Julia
+ENV JULIA_DEPOT_PATH=/opt/julia
+RUN mkdir /opt/julia-${JULIA_VERSION} && \
+    cd /tmp && \
+    wget -q https://julialang-s3.julialang.org/bin/linux/x64/`echo ${JULIA_VERSION} | cut -d. -f 1,2`/julia-${JULIA_VERSION}-linux-x86_64.tar.gz && \
+    tar xzf julia-${JULIA_VERSION}-linux-x86_64.tar.gz -C /opt/julia-${JULIA_VERSION} --strip-components=1 && \
+    rm /tmp/julia-${JULIA_VERSION}-linux-x86_64.tar.gz
+
+RUN ln -fs /opt/julia-*/bin/julia /usr/local/bin/julia
+
+
+# install uv and setup python
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin/:$PATH"
+RUN mkdir /opt/pyenv
+WORKDIR /opt/pyenv
+RUN uv init --bare
+#RUN uv venv /opt/pyenv
+#ENV UV_PROJECT_ENVIRONMENT=/opt/pyenv
+
+# set up python virtual environment
+# RUN python3 -m venv /opt/venv
+
+WORKDIR /opt/pyenv
+COPY requirements.txt /opt/pyenv/requirements.txt
+RUN uv add -r /opt/pyenv/requirements.txt
+
+# this will build the matplotlib font cache
+RUN  uv run python -c "from matplotlib import pylab as plt"
+
+# clean up the downloaded apt lists
+RUN rm -rf /var/lib/apt/lists/*
+
+## set texlive path
+#ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
