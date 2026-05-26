@@ -1,11 +1,12 @@
 # -*- mode: Dockerfile -*-
 # set global arguments
-ARG JULIA_VERSION=1.12.5
-ARG PANDOC_VERSION=3.9.1
-ARG QUARTO_VERSION="1.9.29"
+ARG JULIA_VERSION=1.12.6
+ARG PANDOC_VERSION=3.9.0.2
+ARG QUARTO_VERSION="1.9.38"
 
-ARG TEXLIVE_VERSION_YEAR=2026
-ARG TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
+# no longer used
+#ARG TEXLIVE_VERSION_YEAR=2026
+#ARG TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
 
 # stage 1 - build
 FROM docker.io/ubuntu:24.04 as bibtool
@@ -86,6 +87,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    ghostscript \
     libreoffice \
     imagemagick \
     inkscape \
@@ -174,3 +176,7 @@ RUN rm -rf /var/lib/apt/lists/*
 
 ## set texlive path
 #ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
+# these doen't seem to be necessary for a clean install
+# update tlmgr and packages
+#RUN tlmgr update --self --no-persistent-downloads
+#RUN tlmgr update --all --no-persistent-downloads
