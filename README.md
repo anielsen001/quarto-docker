@@ -11,39 +11,40 @@ The container contains
 - julia
 - bibtool
 
-There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.8.x series is the current release.
+There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.8.x 1.9.x series is the current release.
 
 Now uses a virtual environment for python, located at `/opt/venv`
 
 ## Build
 
-Replace `XX` with `12`, `13`, `14`, `15`, `16`, `17`, `18` for the quarto version desired.
+Replace `XX` with `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19` for the quarto version desired.
 
 ```bash
-docker-compose -f docker-compose.yml build quarto-XX
+podman-compose -f compose.yml build quarto-19
+docker-compose -f compose.yml build quarto-XX
 ```
 or
 ```bash
-podman-compose -f docker-compose.yml build quarto-XX
+podman-compose -f compose.yml build quarto-XX
 ```
 
 To force a build from scratch 
 ```bash
-docker-compose -f docker-compose.yml build --no-cache quarto-XX
+docker-compose -f compose.yml build --no-cache quarto-XX
 ```
 or
 ```bash
-pdoman-compose -f docker-compose.yml build --no-cache quarto-XX
+pdoman-compose -f compose.yml build --no-cache quarto-XX
 ```
 
 ## Run
 
 ```bash
-docker-compose -f docker-compose.yml run quarto-XX
+docker-compose -f compose.yml run quarto-XX
 ```
 or
 ```bash
-podman-compose -f docker-compose.yml run quarto-XX
+podman-compose -f compose.yml run quarto-XX
 ```
 
 This will drop you into a bash shell, test the quarto install
