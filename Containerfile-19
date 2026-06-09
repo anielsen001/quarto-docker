@@ -100,6 +100,8 @@ RUN rm quarto-linux-amd64.deb
 RUN quarto install chrome-headless-shell && \
     quarto install tinytex
 
+
+
 # Install Julia
 ENV JULIA_DEPOT_PATH=/opt/julia
 RUN mkdir /opt/julia-${JULIA_VERSION} && \
@@ -137,8 +139,10 @@ RUN rm -rf /var/lib/apt/lists/*
 # Note: TinyTeX installs to root's home directory inside the container by default
 ENV PATH="${PATH}:/root/.TinyTeX/bin/x86_64-linux"
 
-# 5. Update tlmgr itself and all underlying LaTeX packages
-RUN quarto update tinytex
+RUN tlmgr install \
+    tcolorbox \
+    amsmath
+
 
 # Verify the installation and tools state
 RUN quarto check all
