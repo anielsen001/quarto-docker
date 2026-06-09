@@ -139,9 +139,12 @@ RUN rm -rf /var/lib/apt/lists/*
 # Note: TinyTeX installs to root's home directory inside the container by default
 ENV PATH="${PATH}:/root/.TinyTeX/bin/x86_64-linux"
 
+RUN tlmgr update --self --all
+
 RUN tlmgr install \
     tcolorbox \
-    amsmath
+    amsmath \
+    cancel
 
 
 # Verify the installation and tools state
