@@ -139,6 +139,7 @@ RUN rm -rf /var/lib/apt/lists/*
 # Note: TinyTeX installs to root's home directory inside the container by default
 ENV PATH="${PATH}:/root/.TinyTeX/bin/x86_64-linux"
 
+RUN tlmgr option repository https://mirror.ctan.org/systems/texlive/tlnet
 RUN tlmgr update --self --all
 
 RUN tlmgr install \
