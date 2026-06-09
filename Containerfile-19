@@ -4,10 +4,6 @@ ARG JULIA_VERSION=1.12.6
 ARG PANDOC_VERSION=3.9.0.2
 ARG QUARTO_VERSION="1.9.38"
 
-# no longer used
-#ARG TEXLIVE_VERSION_YEAR=2026
-#ARG TEXLIVE_VERSION_FULL=${TEXLIVE_VERSION_YEAR}0308
-
 # stage 1 - build
 FROM docker.io/ubuntu:24.04 as bibtool
 
@@ -30,49 +26,12 @@ RUN cd /opt/bibtool && \
     make && make install && make clean && \
     cd .. && rm -rf BibTool*
 
-# # Stage 2 - texlive
-# FROM docker.io/ubuntu:24.04 as texlive
-
-# ARG TEXLIVE_VERSION_YEAR
-# ARG TEXLIVE_VERSION_FULL
-
-# RUN apt-get update && \
-#     apt-get upgrade -y && \
-#     apt-get install -y --no-install-recommends \
-#     perl \
-#     wget
-
-# # download texlive installer
-# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_FULL}
-# RUN mkdir -p /opt/texlive/${TEXLIVE_VERSION_YEAR}
-# WORKDIR /opt/texlive/${TEXLIVE_VERSION_FULL}
-# RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${TEXLIVE_VERSION_YEAR}/install-tl-unx.tar.gz
-# # RUN wget http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/install-tl-unx.tar.gz
-# RUN tar xf install-tl-unx.tar.gz
-# RUN install-tl-${TEXLIVE_VERSION_FULL}/install-tl \
-#     --texdir=/opt/texlive/${TEXLIVE_VERSION_YEAR} \
-#     --no-doc-install \
-#     --no-src-install \
-#     --scheme full \
-#     --no-interaction \
-#     --paper=letter \
-#     --no-gui \
-#     --no-continue
-
-## set texlive path
-#ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
-
-# these doen't seem to be necessary for a clean install
-# update tlmgr and packages
-#RUN tlmgr update --self --no-persistent-downloads
-#RUN tlmgr update --all --no-persistent-downloads
 
 # final stage - assemble
 FROM docker.io/ubuntu:24.04
 ARG JULIA_VERSION
 ARG PANDOC_VERSION
 ARG QUARTO_VERSION
-# ARG TEXLIVE_VERSION_YEAR
 
 LABEL maintainer="Aaron Nielsen - apn@apnielsen.com"
 
@@ -138,7 +97,7 @@ RUN rm pandoc-amd64.deb
 RUN curl -o quarto-linux-amd64.deb -L https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO_VERSION}/quarto-${QUARTO_VERSION}-linux-amd64.deb
 RUN dpkg -i quarto-linux-amd64.deb
 RUN rm quarto-linux-amd64.deb
-RUN quarto install chromium && \
+RUN quarto install chrome-headless-shell && \
     quarto install tinytex
 
 # Install Julia
@@ -174,9 +133,12 @@ RUN  uv run python -c "from matplotlib import pylab as plt"
 # clean up the downloaded apt lists
 RUN rm -rf /var/lib/apt/lists/*
 
-## set texlive path
-#ENV PATH=/opt/texlive/${TEXLIVE_VERSION_YEAR}/bin/x86_64-linux:$PATH
-# these doen't seem to be necessary for a clean install
-# update tlmgr and packages
-#RUN tlmgr update --self --no-persistent-downloads
-#RUN tlmgr update --all --no-persistent-downloads
+# 4. Explicitly add TinyTeX's binary directory to the PATH 
+# Note: TinyTeX installs to root's home directory inside the container by default
+ENV PATH="${PATH}:/root/.TinyTeX/bin/x86_64-linux"
+
+# 5. Update tlmgr itself and all underlying LaTeX packages
+RUN quarto update tinytex
+
+# Verify the installation and tools state
+RUN quarto check all
