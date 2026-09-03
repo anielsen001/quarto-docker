@@ -150,7 +150,24 @@ RUN tlmgr update --self --all
 RUN tlmgr install \
     tcolorbox \
     amsmath \
-    cancel
+    cancel \
+    adjustbox \
+    beramono \
+    caption \
+    collectbox \
+    dcolumn \
+    enumitem \
+    lipsum \
+    listings \
+    matlab-prettifier \
+    pgf \
+    pgfplots \
+    seqsplit \
+    textpos \
+    titlesec \
+    upquote \
+    xcolor \
+    xkeyval
 
 
 # Verify the installation and tools state
