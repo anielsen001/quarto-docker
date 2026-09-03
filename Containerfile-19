@@ -152,10 +152,10 @@ RUN tlmgr install \
     amsmath \
     cancel \
     adjustbox \
-    beramono \
+    bera \
     caption \
     collectbox \
-    dcolumn \
+    tools \
     enumitem \
     lipsum \
     listings \
