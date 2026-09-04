@@ -167,7 +167,11 @@ RUN tlmgr install \
     titlesec \
     upquote \
     xcolor \
-    xkeyval
+    xkeyval \
+    avantgar \
+    psnfss \
+    tex-gyre \
+    texlive-scripts
 
 
 # Verify the installation and tools state
