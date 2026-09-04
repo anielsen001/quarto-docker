@@ -129,6 +129,11 @@ WORKDIR /opt/pyenv
 COPY requirements.txt /opt/pyenv/requirements.txt
 RUN uv add -r /opt/pyenv/requirements.txt
 
+# Put the project venv on PATH so `quarto render` (and anything else)
+# finds jupyter/matplotlib without needing `uv run` in the caller.
+ENV VIRTUAL_ENV="/opt/pyenv/.venv"
+ENV PATH="/opt/pyenv/.venv/bin:${PATH}"
+
 # this will build the matplotlib font cache
 RUN  uv run python -c "from matplotlib import pylab as plt"
 
@@ -145,7 +150,28 @@ RUN tlmgr update --self --all
 RUN tlmgr install \
     tcolorbox \
     amsmath \
-    cancel
+    cancel \
+    adjustbox \
+    bera \
+    caption \
+    collectbox \
+    tools \
+    enumitem \
+    lipsum \
+    listings \
+    matlab-prettifier \
+    pgf \
+    pgfplots \
+    seqsplit \
+    textpos \
+    titlesec \
+    upquote \
+    xcolor \
+    xkeyval \
+    avantgar \
+    psnfss \
+    tex-gyre \
+    texlive-scripts
 
 
 # Verify the installation and tools state

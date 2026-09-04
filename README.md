@@ -13,7 +13,7 @@ The container contains
 
 There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.8.x 1.9.x series is the current release.
 
-Now uses a virtual environment for python, located at `/opt/venv`
+Now uses a virtual environment for python, located at `/opt/pyenv/.venv` and it is on `PATH`
 
 ## Build
 
