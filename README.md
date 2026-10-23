@@ -11,16 +11,18 @@ The container contains
 - julia
 - bibtool
 
-There are three versions available for quarto 1.2.x, 1.3.x, 1.4.x, 1.5.x. The 1.8.x 1.9.x series is the current release.
+There are three versions available for quarto The 1.10.x series is the current release. 
+I changed my Docker/Containerfile naming scheme with 1.10.x to be `Containerfile-X-Y` 
+previously it was `Containerfile-XY`.
 
 Now uses a virtual environment for python, located at `/opt/venv`
 
 ## Build
 
-Replace `XX` with `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19` for the quarto version desired.
+Replace `XX` with `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19`, `1-10` for the quarto version desired.
 
 ```bash
-podman-compose -f compose.yml build quarto-19
+podman-compose -f compose.yml build quarto-1-10
 docker-compose -f compose.yml build quarto-XX
 ```
 or

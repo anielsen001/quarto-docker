@@ -14,6 +14,14 @@ x-default: &default
     - /bin/bash  
 
 services:
+  quarto-1-10:
+    <<: *default
+    image: quarto-1-10:develop
+    build:
+      context: .
+      dockerfile: Containerfile-1-10
+  
+  
   quarto-19:
     <<: *default
     image: quarto-19:develop
